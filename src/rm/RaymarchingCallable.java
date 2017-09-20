@@ -1,9 +1,6 @@
 package rm;
 
 import java.util.concurrent.Callable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import utils.Vec2;
 import utils.Vec3;
 
@@ -13,16 +10,18 @@ public class RaymarchingCallable implements Callable<String> {
 	private long elapsedTime;
 	private int width;
 	private int height;
+	private double minDistanceEncountered;
+	private double maxDistanceEncountered;
+	private Vec3 position;
 	
 	public RaymarchingCallable(int width, int height, int rowIndex) {
 		this.rowIndex = rowIndex;
 		this.elapsedTime = 0L;
 		this.width = width;
 		this.height = height;
-	}
-	
-	private double fSphere(Vec3 p, double r) {
-		return p.length() - r;
+		this.minDistanceEncountered = Double.MAX_VALUE;
+		this.maxDistanceEncountered = Double.MIN_VALUE;
+		this.position = new Vec3(0.0, 0.0, 0.0);
 	}
 	
 	private double fBoxCheap(Vec3 p, Vec3 b) {
@@ -45,14 +44,14 @@ public class RaymarchingCallable implements Callable<String> {
 		p.x = xy.x;
 		p.y = xy.y;
 		
-		double sz = 0.5;
-		double sz2 = sz - 0.1;
-		double a = fBoxCheap(p, new Vec3(sz, sz, sz));
+		final double sz1 = 0.5;
+		final double sz2 = sz1 - 0.1;
+		final double sz3 = sz1 * 2.0;
 		
-		double b = fBoxCheap(p, new Vec3(1.0, sz2, sz2));
-		double c = fBoxCheap(p, new Vec3(sz2, 1.0, sz2));
-		double d = fBoxCheap(p, new Vec3(sz2, sz2, 1.0));
-		
+		final double a = fBoxCheap(p, new Vec3(sz1, sz1, sz1));
+		final double b = fBoxCheap(p, new Vec3(sz3, sz2, sz2));
+		final double c = fBoxCheap(p, new Vec3(sz2, sz3, sz2));
+		final double d = fBoxCheap(p, new Vec3(sz2, sz2, sz3));
 		
 		return Math.max(Math.max(Math.max(a, -b), -c), -d);
 	}
@@ -93,16 +92,36 @@ public class RaymarchingCallable implements Callable<String> {
 			
 			Vec2 uv = Vec2.minus(Vec2.multiply(new Vec2((double)i / (double)(width-1), (double)rowIndex / (double)(height-1)), 2.0), 1.0);
 			
-			Vec3 ro = new Vec3(uv.x, uv.y, -1.0);
+			Vec3 ro = new Vec3(uv.x + position.x, uv.y + position.y, -1.0 + position.z);
 			Vec3 rd = new Vec3(0.0, 0.0, 1.0);
 			
 			double dist = Math.abs(raymarch(ro, rd));
 			
 			char replaceChar = '.';
-			if (dist != 10.0)
-				replaceChar = '#';
 			
-			//System.out.println(dist);
+			if (dist != 10.0) {
+				
+				if (dist < minDistanceEncountered) {
+					minDistanceEncountered = dist;
+					//System.out.println("new min: " + minDistanceEncountered);
+				}
+				else if (dist > maxDistanceEncountered) {
+					maxDistanceEncountered = dist;
+					//System.out.println("new max: " + maxDistanceEncountered);
+				}
+				
+				double range = maxDistanceEncountered - minDistanceEncountered;
+				double offsetFromMin = maxDistanceEncountered - dist;
+				double result = offsetFromMin / range;
+				
+				String palette = " `-_:/~|(%zr*uwJ$khOZ8W@B#M";
+				int col = (int) (result * palette.length());
+				
+				if (col == 27)
+					col--;
+				replaceChar = palette.charAt(col);	
+			}
+			
 			
 			myArray[i] = replaceChar;
 		}
@@ -112,5 +131,9 @@ public class RaymarchingCallable implements Callable<String> {
 	
 	public void setElapsedTime(long elapsedTime) {
 		this.elapsedTime = elapsedTime;
+	}
+	
+	public void setPosition(Vec3 p) {
+		this.position = p;
 	}
 }
