@@ -11,7 +11,7 @@ public class RaymarchingJFrame extends JFrame {
 	public RaymarchingJFrame(JPanel jpanel) {
 		super("ASCII Raymarcher");
 		
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		setContentPane(jpanel);
 		
