@@ -97,7 +97,7 @@ public class RaymarchingCallable implements Callable<String> {
 			
 			double dist = Math.abs(raymarch(ro, rd));
 			
-			char replaceChar = '.';
+			char replaceChar = ' ';
 			
 			if (dist != 10.0) {
 				

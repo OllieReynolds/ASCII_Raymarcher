@@ -21,7 +21,7 @@ public class RaymarchingJTextArea extends JTextArea {
 		
 		setForeground(Color.GREEN);
 		
-		setFont(new Font("monospaced", Font.BOLD, 12));
+		setFont(new Font("monospaced", Font.BOLD, 8));
 		
 		setLineWrap(true);
 		
