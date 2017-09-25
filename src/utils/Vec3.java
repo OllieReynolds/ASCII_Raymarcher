@@ -1,7 +1,33 @@
 package utils;
 
 public class Vec3 {
-	public double x,y,z;
+	private double x;
+	private double y;
+	private double z;
+	
+	public double getX() {
+		return x;
+	}
+	
+	public double getY() {
+		return y;
+	}
+	
+	public double getZ() {
+		return z;
+	}
+	
+	public void setX(double newX) {
+		x = newX;
+	}
+	
+	public void setY(double newY) {
+		y = newY;
+	}
+	
+	public void setZ(double newZ) {
+		z = newZ;
+	}
 	
 	public Vec3(double x, double y, double z) {
 		this.x = x;
