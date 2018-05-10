@@ -1,7 +1,7 @@
 # ASCII_Raymarcher 
 
 
-![alt text](https://github.com/OllieReynolds/ASCII_Raymarcher/blob/master/2017-09-20_17-45-36.gif "img")
+![alt text](https://github.com/OllieReynolds/ASCII_Raymarcher/blob/master/meta/preview.gif "img")
 
 
 Special Thanks:
