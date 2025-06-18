@@ -10,18 +10,18 @@ public class RaymarchingCallable implements Callable<String> {
 	private long elapsedTime;
 	private int width;
 	private int height;
-	private double minDistanceEncountered;
-	private double maxDistanceEncountered;
-	private Vec3 position;
+        private static final double MAX_DISTANCE = 10.0;
+        private static final double GAMMA = 1.5;
+        private static final String PALETTE = " .:-=+*#%@";
+
+        private Vec3 position;
 
 	public RaymarchingCallable(int width, int height, int rowIndex) {
 		this.rowIndex = rowIndex;
 		this.elapsedTime = 0L;
 		this.width = width;
-		this.height = height;
-		this.minDistanceEncountered = Double.MAX_VALUE;
-		this.maxDistanceEncountered = Double.MIN_VALUE;
-		this.position = new Vec3(0.0, 0.0, 0.0);
+                this.height = height;
+                this.position = new Vec3(0.0, 0.0, 0.0);
 	}
 
 	private double fBoxCheap(Vec3 p, Vec3 b) {
@@ -62,8 +62,8 @@ public class RaymarchingCallable implements Callable<String> {
 	private double raymarch(Vec3 ro, Vec3 rd) {
 		double sceneDist = 0.0;
 		double rayDepth = 0.0;
-		double epsilon = 0.0001;
-		double max = 10.0;
+                double epsilon = 0.0001;
+                double max = MAX_DISTANCE;
 		int iter = 50;
 
 		for (int i = 0; i < iter; i++) {
@@ -98,29 +98,16 @@ public class RaymarchingCallable implements Callable<String> {
 			Vec3 ro = new Vec3(uv.getX() + position.getX(), uv.getY() + position.getY(), -1.0 + position.getZ());
 			Vec3 rd = new Vec3(0.0, 0.0, 1.0);
 
-			double dist = Math.abs(raymarch(ro, rd));
+                        double dist = Math.abs(raymarch(ro, rd));
 
-			char replaceChar = ' ';
+                        char replaceChar = ' ';
 
-			if (dist != 10.0) {
-
-				if (dist < minDistanceEncountered) {
-					minDistanceEncountered = dist;
-				} else if (dist > maxDistanceEncountered) {
-					maxDistanceEncountered = dist;
-				}
-
-				double range = maxDistanceEncountered - minDistanceEncountered;
-				double offsetFromMin = maxDistanceEncountered - dist;
-				double result = offsetFromMin / range;
-
-				String palette = " `-_:/~|(%zr*uwJ$khOZ8W@B#M";
-				int col = (int) (result * palette.length());
-
-				if (col == 27)
-					col--;
-				replaceChar = palette.charAt(col);
-			}
+                        if (dist < MAX_DISTANCE) {
+                                double normalized = Math.min(dist / MAX_DISTANCE, 1.0);
+                                double brightness = Math.pow(1.0 - normalized, GAMMA);
+                                int index = (int) (brightness * (PALETTE.length() - 1));
+                                replaceChar = PALETTE.charAt(index);
+                        }
 
 			myArray[i] = replaceChar;
 		}
